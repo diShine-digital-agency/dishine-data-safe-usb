@@ -1,15 +1,31 @@
-# .gitignore
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
 
-# Exclude transcripts
-transcripts/
+# Virtual environment
+venv/
 
-# Exclude drops
-**/drops/
-
-# Exclude cache
-cache/
-
-# Exclude environment files
+# Environment files
 .env
 .env.local
 .env.*
+
+# Sensitive data - never commit these
+vault/
+output/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Project-specific
+transcripts/
+**/drops/
+cache/

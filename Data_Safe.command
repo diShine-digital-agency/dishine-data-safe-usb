@@ -1,22 +1,16 @@
 #!/bin/bash
 # --------------------------------------------------
-# diShine Data-Safe USB - Quick Launch
+# diShine Data-Safe USB — Quick Launch
 # --------------------------------------------------
 
-# Ensure we are in the correct directory
 cd "$(dirname "$0")"
 
-# Check for venv
 if [ ! -d "venv" ]; then
-    echo "Virtual Environment (venv) not found. Running setup..."
-    ./setup.sh
+    echo "Virtual environment not found. Running setup..."
+    bash setup.sh
 fi
 
-# Activate venv
 source venv/bin/activate
+python3 Data_Safe.py "$@"
 
-# Launch
-python3 Data_Safe.py
-
-# Keep terminal open if it fails/ends
-read -p "Press enter to exit..."
+read -p "Press Enter to exit..."

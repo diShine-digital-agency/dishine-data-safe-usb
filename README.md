@@ -1,57 +1,164 @@
-# diShine Data-Safe USB (v1.0.0)
+# diShine Data-Safe USB
 
-**100% GDPR-Compliant Local Anonymizer for Secure AI Analysis.**
+**Local PII anonymizer for CSV files.** Strip names, emails, phone numbers, and other personally identifiable information from your data before uploading it to cloud AI services. Everything runs on your machine — nothing leaves your computer.
 
-Modern businesses want the power of LLMs (ChatGPT, Claude) for data analysis, but uploading raw customer lists, HR records, or sales data is a massive compliance risk. `Data-Safe USB` is a local-first Python engine that scrubs PII (Personally Identifiable Information) from your CSVs before they ever reach the cloud.
-
-Built by [diShine](https://dishine.it)
+Built by [diShine](https://dishine.it) · Author: Kevin Escoda
 
 ---
 
-## The Business Logic
+## What It Does
 
-Cloud AI is transformative, but **Privacy is Non-Negotiable.** 
+Cloud AI tools like ChatGPT and Claude are powerful for data analysis, but uploading raw customer lists, HR records, or sales data creates real privacy and compliance risks.
 
-`Data-Safe USB` provides a "pre-processing" layer that ensures no real names, emails, phone numbers, or IBANs are uploaded to external servers. By replacing sensitive data with realistic, deterministic fake data, your AI models can still perform meaningful analysis (e.g., trend detection, grouping) without violating GDPR or internal security policies.
+Data-Safe USB sits between your raw data and the cloud. It scans CSV files for PII (names, emails, phone numbers, IBANs, credit card numbers, locations, dates), replaces each value with a realistic fake, and writes a clean file you can safely upload. A local vault stores the original-to-fake mapping so you can reverse the process when needed.
 
----
+Key properties:
 
-## Features
-
-- **Local Discovery**: Powered by Microsoft Presidio and spaCy for deep NLP-based PII detection.
-- **Realistic Transformation**: Uses the `Faker` library to generate consistent, deterministic replacements (e.g., "John Doe" becomes "Jane Smith").
-- **Deterministic Mapping**: Maintains consistency across files; the same original value will always receive the same fake value within a session.
-- **Local Vault**: Stores the "Original -> Fake" mapping key locally in an encrypted vault, allowing you to reverse the process if needed.
-- **Mac-Native Experience**: One-click `.command` launcher for non-technical Ops/HR teams.
+- **Fully offline** — powered by [Microsoft Presidio](https://github.com/microsoft/presidio) and [spaCy](https://spacy.io/) running locally
+- **Deterministic replacements** — the same input always produces the same fake output, preserving relational consistency across rows and files
+- **Batch processing** — drop multiple CSVs into the input folder and process them all at once
+- **Reversible** — the vault mapping lets you map back to original values when needed
+- **Simple CLI** — progress bars, summary tables, dry-run mode
 
 ---
 
 ## Quick Start
 
-1. **Setup**: Run `setup.sh` to initialize the environment.
-   ```bash
-   ./setup.sh
-   ```
-2. **Deposit Data**: Drop your raw CSV into the `input/` folder.
-3. **Execute**: Run `Data_Safe.command`.
-4. **Result**: Your scrubbed, safe-to-upload file appears in `output/`.
+### 1. Setup (one-time)
+
+Requires **Python 3.9+** and an internet connection for the initial model download.
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+This creates a virtual environment, installs dependencies, and downloads the spaCy NLP model (~400 MB).
+
+### 2. Anonymize
+
+Drop your CSV file(s) into the `input/` folder, then run:
+
+```bash
+# On macOS — double-click Data_Safe.command, or:
+./Data_Safe.command
+
+# Or directly:
+source venv/bin/activate
+python Data_Safe.py
+```
+
+Your anonymized file(s) appear in `output/`, prefixed with `safe_`.
+
+### 3. Check the results
+
+```bash
+# Preview what PII would be detected without modifying anything
+python Data_Safe.py --dry-run
+```
 
 ---
 
-## Security Architecture
+## CLI Options
 
-1. **In-Memory Analysis**: Data is processed in local RAM. No data is stored or logged.
-2. **PII Detection**: Multi-layer scanner (Regex + Transformer models) identifies names, emails, phones, and financial identifiers.
-3. **Vault Isolation**: The mapping key is kept in the `/vault` directory, which should never be uploaded.
+```
+python Data_Safe.py [OPTIONS]
+
+Options:
+  --dry-run     Scan for PII and show a report without writing output files
+  --input DIR   Input directory (default: input)
+  --output DIR  Output directory (default: output)
+```
 
 ---
 
-## About diShine
+## How It Works
 
-[diShine](https://dishine.it) is a Milan-based creative tech agency. We build tools for digital consultants, help businesses with AI strategy and MarTech architecture, and bridge the gap between "Edge Intelligence" and "Cloud Power."
+```
+CSV files (input/)
+    │
+    ├── PII Analyzer (Presidio + spaCy NLP)
+    │     Detects: PERSON, EMAIL, PHONE, LOCATION, IBAN, CREDIT_CARD, CRYPTO, DATE_TIME
+    │
+    ├── PII Transformer (Faker + SHA-256 seeding)
+    │     Replaces each PII value with a deterministic fake
+    │
+    └── Vault (JSON mapping)
+          Stores original → fake pairs for reversibility
+    │
+    ▼
+Safe CSV files (output/safe_*.csv)
+```
 
-- Web: [dishine.it](https://dishine.it)
-- GitHub: [github.com/diShine-digital-agency](https://github.com/diShine-digital-agency)
+The deterministic replacement works by hashing each original value with a salt using SHA-256, then using that hash to seed the Faker library. This guarantees that "John Doe" always maps to the same fake name within a session, which preserves data relationships for downstream analysis.
 
-Copyright (c) 2026 [diShine](https://dishine.it). All rights reserved.
-**Author: Kevin Escoda**
+---
+
+## Project Structure
+
+```
+├── Data_Safe.py          # Main entry point
+├── Data_Safe.command     # macOS double-click launcher
+├── setup.sh              # Environment setup script
+├── requirements.txt      # Python dependencies
+├── core/
+│   ├── analyzer.py       # PII detection (Presidio wrapper)
+│   ├── transformer.py    # Deterministic fake data generation
+│   └── vault.py          # Mapping storage
+├── input/                # Drop raw CSVs here
+├── output/               # Anonymized CSVs appear here
+├── vault/                # Mapping keys (never share this)
+└── tests/                # Test suite
+```
+
+---
+
+## Configuration
+
+**Custom salt:** The deterministic hashing uses a salt value. You can override it via environment variable:
+
+```bash
+export DATASAFE_SALT="your-custom-salt"
+```
+
+---
+
+## Security Notes
+
+- The `vault/` directory contains the complete reversal key. **Never share it, never commit it.** It is excluded from git by default.
+- The `output/` directory is also excluded from git to prevent accidental data leaks.
+- All processing happens in local memory. No data is sent to any external service.
+- The mapping file is stored as plain JSON. For additional security, encrypt the vault directory with your OS-level encryption tools (FileVault, LUKS, BitLocker).
+
+---
+
+## Running Tests
+
+```bash
+pip install pytest
+python -m pytest tests/ -v
+```
+
+---
+
+## Requirements
+
+- Python 3.9+
+- ~500 MB disk space for the spaCy language model
+- See [requirements.txt](requirements.txt) for Python dependencies
+
+---
+
+## Documentation
+
+- [Operational Guide](GUIDE.md) — step-by-step instructions for non-technical users
+- [Technical Infrastructure](INFRASTRUCTURE.md) — architecture and design details
+- [Changelog](CHANGELOG.md) — version history
+
+---
+
+## License
+
+Copyright © 2026 [diShine](https://dishine.it). All rights reserved.
+
+Author: Kevin Escoda
