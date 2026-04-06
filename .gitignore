@@ -1,0 +1,15 @@
+# .gitignore
+
+# Exclude transcripts
+transcripts/
+
+# Exclude drops
+**/drops/
+
+# Exclude cache
+cache/
+
+# Exclude environment files
+.env
+.env.local
+.env.*
