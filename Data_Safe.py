@@ -48,10 +48,11 @@ def process_csv(filepath, output_dir, analyzer, transformer, dry_run=False):
         console=console,
     ) as progress:
         task = progress.add_task(f"Processing {filename}...", total=len(df))
+        col_indices = {col: df.columns.get_loc(col) for col in df.columns}
 
         for idx in range(len(df)):
-            for col in df.columns:
-                val = str(df.iat[idx, df.columns.get_loc(col)])
+            for col, col_idx in col_indices.items():
+                val = str(df.iat[idx, col_idx])
                 if val in ("nan", "None", ""):
                     continue
 
@@ -59,7 +60,7 @@ def process_csv(filepath, output_dir, analyzer, transformer, dry_run=False):
                 if results:
                     entity_type = results[0].entity_type
                     if not dry_run:
-                        df.iat[idx, df.columns.get_loc(col)] = transformer.get_deterministic_fake(val, entity_type)
+                        df.iat[idx, col_idx] = transformer.get_deterministic_fake(val, entity_type)
                     pii_counts[entity_type] = pii_counts.get(entity_type, 0) + 1
                     total_replacements += 1
 
