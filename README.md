@@ -54,4 +54,4 @@ Cloud AI is transformative, but **Privacy is Non-Negotiable.**
 - GitHub: [github.com/diShine-digital-agency](https://github.com/diShine-digital-agency)
 
 Copyright (c) 2026 [diShine](https://dishine.it). All rights reserved.
-**Author: [Kevin Escoda](https://github.com/kevin-escoda)**
+**Author: Kevin Escoda**
