@@ -1,19 +1,19 @@
 # diShine Data-Safe USB: Local PII anonymizer for CSV files
 
 <p align="center">
-  <img src="docs/images/datasafe_01_dry_run_overview.webp" alt="Data Safe overview" width="65%">
+  <img src="images/datasafe_01_dry_run_overview.webp" alt="Data Safe overview" width="65%">
 </p>
 
 Strip names, emails, phone numbers, and other personally identifiable information from your data before uploading it to cloud AI services. Everything runs on your machine — nothing leaves your computer.
 Built by [diShine](https://dishine.it) 
 
 <p align="center">
-  <img src="docs/images/datasafe_03_input_output_comparison.webp" alt="Data Safe comparaison" width="49%">
-  <img src="docs/images/datasafe_04_local_privacy_workspace.webp" alt="Data Safe workspace" width="49%">
+  <img src="images/datasafe_03_input_output_comparison.webp" alt="Data Safe comparaison" width="49%">
+  <img src="images/datasafe_04_local_privacy_workspace.webp" alt="Data Safe workspace" width="49%">
 </p>
 
 <p align="center">
-  <img src="docs/images/datasafe_06_before_after_terminal_split_close.webp" alt="Data Safe BEFORE / AFTER" width="60%">
+  <img src="images/datasafe_06_before_after_terminal_split_close.webp" alt="Data Safe BEFORE / AFTER" width="60%">
 </p>
 
 ---
