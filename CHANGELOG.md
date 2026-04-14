@@ -7,6 +7,21 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.2.0] - 2026-04-14
+
+### Added
+- `--reverse` flag to restore anonymized CSV files to their original values using the vault mapping.
+- `--version` flag to display the current version.
+- `--vault` flag to specify a custom vault directory.
+- `IP_ADDRESS` and `URL` entity type detection and replacement.
+- `.env` file support via python-dotenv for configuring `DATASAFE_SALT` and other settings.
+- 10 new tests: 9 analyzer unit tests (person, email, phone, IP, URL, empty/null input, score sorting, threshold) and 1 reverse-mode integration test. Total: 25 tests.
+
+### Fixed
+- Sample CSV (`pii_test.csv`) now contains valid IBANs that pass checksum validation, ensuring IBAN detection works correctly out of the box.
+
+---
+
 ## [1.1.0] - 2026-04-06
 
 ### Added

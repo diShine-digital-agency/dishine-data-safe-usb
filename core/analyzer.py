@@ -7,6 +7,7 @@ class PII_Analyzer:
     DEFAULT_ENTITIES = [
         "PERSON", "EMAIL_ADDRESS", "PHONE_NUMBER", "LOCATION",
         "IBAN_CODE", "CREDIT_CARD", "CRYPTO", "DATE_TIME",
+        "IP_ADDRESS", "URL",
     ]
 
     def __init__(self, score_threshold=0.3, entities=None):

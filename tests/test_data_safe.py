@@ -4,8 +4,70 @@ import tempfile
 
 import pytest
 
+from core.analyzer import PII_Analyzer
 from core.transformer import PII_Transformer
 from core.vault import DataVault
+
+
+class TestPIIAnalyzer:
+    """Tests for the PII_Analyzer class."""
+
+    def test_detect_person(self):
+        """Analyzer should detect a person name."""
+        a = PII_Analyzer()
+        results = a.analyze_text("John Doe")
+        assert any(r.entity_type == "PERSON" for r in results)
+
+    def test_detect_email(self):
+        """Analyzer should detect an email address."""
+        a = PII_Analyzer()
+        results = a.analyze_text("alice@example.com")
+        assert any(r.entity_type == "EMAIL_ADDRESS" for r in results)
+
+    def test_detect_phone(self):
+        """Analyzer should detect a phone number."""
+        a = PII_Analyzer()
+        results = a.analyze_text("044-333-2222")
+        assert any(r.entity_type == "PHONE_NUMBER" for r in results)
+
+    def test_detect_ip_address(self):
+        """Analyzer should detect an IP address."""
+        a = PII_Analyzer()
+        results = a.analyze_text("192.168.1.100")
+        assert any(r.entity_type == "IP_ADDRESS" for r in results)
+
+    def test_detect_url(self):
+        """Analyzer should detect a URL."""
+        a = PII_Analyzer()
+        results = a.analyze_text("https://example.com/page")
+        assert any(r.entity_type == "URL" for r in results)
+
+    def test_empty_input_returns_empty(self):
+        """Empty or whitespace input should return no results."""
+        a = PII_Analyzer()
+        assert a.analyze_text("") == []
+        assert a.analyze_text("   ") == []
+
+    def test_none_input_returns_empty(self):
+        """Non-string input should return no results."""
+        a = PII_Analyzer()
+        assert a.analyze_text(None) == []
+
+    def test_results_sorted_by_score(self):
+        """Results should be sorted by confidence score descending."""
+        a = PII_Analyzer()
+        results = a.analyze_text("John Doe at john@example.com")
+        if len(results) > 1:
+            scores = [r.score for r in results]
+            assert scores == sorted(scores, reverse=True)
+
+    def test_custom_threshold(self):
+        """Higher threshold should produce fewer or equal detections."""
+        a_low = PII_Analyzer(score_threshold=0.1)
+        a_high = PII_Analyzer(score_threshold=0.9)
+        results_low = a_low.analyze_text("044-333-2222")
+        results_high = a_high.analyze_text("044-333-2222")
+        assert len(results_low) >= len(results_high)
 
 
 class TestPIITransformer:
@@ -191,3 +253,39 @@ class TestIntegration:
             transformer = PII_Transformer(salt="test")
             result = process_csv(test_csv, output_dir, analyzer, transformer)
             assert result is None
+
+    def test_reverse_restores_original_values(self):
+        """Reverse mode should restore anonymized values to originals."""
+        import pandas as pd
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_dir = os.path.join(tmpdir, "input")
+            output_dir = os.path.join(tmpdir, "output")
+            os.makedirs(input_dir)
+            os.makedirs(output_dir)
+
+            # Create and anonymize
+            test_csv = os.path.join(input_dir, "test.csv")
+            df = pd.DataFrame({
+                "Name": ["John Doe", "Jane Smith"],
+                "Email": ["john@example.com", "jane@example.com"],
+            })
+            df.to_csv(test_csv, index=False)
+
+            from Data_Safe import process_csv, reverse_csv
+
+            analyzer = PII_Analyzer()
+            transformer = PII_Transformer(salt="test")
+            process_csv(test_csv, output_dir, analyzer, transformer)
+
+            # Reverse using the mapping
+            reverse_mapping = {v: k for k, v in transformer.mapping.items()}
+            output_file = os.path.join(output_dir, "safe_test.csv")
+            result = reverse_csv(output_file, input_dir, reverse_mapping)
+
+            assert result is not None
+            assert result["replacements"] > 0
+
+            restored = pd.read_csv(os.path.join(input_dir, "restored_safe_test.csv"))
+            assert list(restored["Name"]) == ["John Doe", "Jane Smith"]
+            assert list(restored["Email"]) == ["john@example.com", "jane@example.com"]
