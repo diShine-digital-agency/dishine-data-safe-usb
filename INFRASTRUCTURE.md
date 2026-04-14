@@ -30,6 +30,8 @@ Standard regex-based anonymizers miss contextual PII — a name in an unstructur
 - `CREDIT_CARD` — credit card numbers
 - `DATE_TIME` — dates and timestamps
 - `CRYPTO` — cryptocurrency wallet addresses
+- `IP_ADDRESS` — IPv4 and IPv6 addresses
+- `URL` — web URLs
 
 **Detection threshold:** The analyzer uses a confidence score threshold of 0.3 (configurable). Only values that Presidio identifies with sufficient confidence are flagged for replacement. This balances recall against over-redaction.
 
@@ -73,6 +75,19 @@ The `vault/` directory is excluded from git via `.gitignore` to prevent accident
    d. Replace the cell value
 3. Write anonymized CSV to output/ with "safe_" prefix
 4. Save the complete mapping to vault/mapping_key.json
+```
+
+## Reverse Mode
+
+The `--reverse` flag reads the vault mapping and applies it in reverse to restore anonymized files:
+
+```
+1. Load mapping from vault/mapping_key.json
+2. Build reverse index: fake value → original value
+3. Load CSV(s) from output/ directory
+4. For each cell, look up the value in the reverse index
+5. If found, replace with the original value
+6. Write restored CSV to input/ with "restored_" prefix
 ```
 
 ---

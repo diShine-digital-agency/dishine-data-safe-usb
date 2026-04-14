@@ -73,6 +73,21 @@ After processing, a file called `mapping_key.json` is saved in the `vault/` fold
 
 ---
 
+## Reversing Anonymization
+
+If you need to restore the original values after cloud analysis is complete:
+
+```bash
+source venv/bin/activate
+python Data_Safe.py --reverse
+```
+
+This reads the anonymized files from `output/`, applies the vault mapping in reverse, and writes `restored_*` files to `input/`. The original files are not modified.
+
+**Note:** Reversal only works if the vault mapping file (`vault/mapping_key.json`) from the same anonymization session is available.
+
+---
+
 ## Processing Multiple Files
 
 The tool processes all CSV files in the `input/` directory in a single run. Each file gets its own output file in `output/`.

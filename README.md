@@ -62,7 +62,17 @@ python Data_Safe.py
 
 Your anonymized file(s) appear in `output/`, prefixed with `safe_`.
 
-### 3. Check the results
+### 3. Reverse anonymization
+
+To restore an anonymized file to its original values using the vault mapping:
+
+```bash
+python Data_Safe.py --reverse
+```
+
+This reads the `safe_*.csv` files from `output/`, applies the vault mapping in reverse, and writes `restored_*` files to `input/`.
+
+### 4. Check the results
 
 ```bash
 # Preview what PII would be detected without modifying anything
@@ -77,9 +87,12 @@ python Data_Safe.py --dry-run
 python Data_Safe.py [OPTIONS]
 
 Options:
-  --dry-run     Scan for PII and show a report without writing output files
-  --input DIR   Input directory (default: input)
-  --output DIR  Output directory (default: output)
+  --version      Show version and exit
+  --dry-run      Scan for PII and show a report without writing output files
+  --reverse      Reverse anonymization using the vault mapping
+  --input DIR    Input directory (default: input)
+  --output DIR   Output directory (default: output)
+  --vault DIR    Vault directory (default: vault)
 ```
 
 ---
@@ -90,7 +103,7 @@ Options:
 CSV files (input/)
     │
     ├── PII Analyzer (Presidio + spaCy NLP)
-    │     Detects: PERSON, EMAIL, PHONE, LOCATION, IBAN, CREDIT_CARD, CRYPTO, DATE_TIME
+    │     Detects: PERSON, EMAIL, PHONE, LOCATION, IBAN, CREDIT_CARD, CRYPTO, DATE_TIME, IP_ADDRESS, URL
     │
     ├── PII Transformer (Faker + SHA-256 seeding)
     │     Replaces each PII value with a deterministic fake
@@ -127,10 +140,14 @@ The deterministic replacement works by hashing each original value with a salt u
 
 ## Configuration
 
-**Custom salt:** The deterministic hashing uses a salt value. You can override it via environment variable:
+**Custom salt:** The deterministic hashing uses a salt value. You can override it via environment variable or a `.env` file:
 
 ```bash
+# Environment variable
 export DATASAFE_SALT="your-custom-salt"
+
+# Or create a .env file in the project root
+echo 'DATASAFE_SALT=your-custom-salt' > .env
 ```
 
 ---
@@ -150,6 +167,8 @@ export DATASAFE_SALT="your-custom-salt"
 pip install pytest
 python -m pytest tests/ -v
 ```
+
+The test suite includes 25 tests covering the analyzer, transformer, vault, and full pipeline (including reverse mode).
 
 ---
 
