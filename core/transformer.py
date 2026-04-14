@@ -16,6 +16,8 @@ class PII_Transformer:
         "CREDIT_CARD": "credit_card_number",
         "DATE_TIME": "date",
         "CRYPTO": "sha1",
+        "IP_ADDRESS": "ipv4",
+        "URL": "url",
     }
 
     def __init__(self, salt=None):

@@ -3,6 +3,7 @@ import os
 import sys
 
 import pandas as pd
+from dotenv import load_dotenv
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeRemainingColumn
@@ -11,6 +12,8 @@ from rich.table import Table
 from core.analyzer import PII_Analyzer
 from core.transformer import PII_Transformer
 from core.vault import DataVault
+
+load_dotenv()
 
 VERSION = "1.1.0"
 console = Console()
@@ -96,17 +99,116 @@ def print_summary(summaries, dry_run=False):
     console.print(table)
 
 
+def reverse_csv(filepath, output_dir, reverse_mapping):
+    """Reverse anonymization on a single CSV file using the vault mapping. Returns a summary dict."""
+    filename = os.path.basename(filepath)
+    output_file = os.path.join(output_dir, f"restored_{filename}")
+
+    try:
+        df = pd.read_csv(filepath, encoding="utf-8")
+    except UnicodeDecodeError:
+        try:
+            df = pd.read_csv(filepath, encoding="latin-1")
+        except Exception as e:
+            console.print(f"[bold red]✗[/bold red] Failed to read {filename}: {e}")
+            return None
+    except Exception as e:
+        console.print(f"[bold red]✗[/bold red] Failed to read {filename}: {e}")
+        return None
+
+    if df.empty:
+        console.print(f"[bold yellow]![/bold yellow] {filename} is empty, skipping.")
+        return None
+
+    total_restored = 0
+    col_indices = {col: df.columns.get_loc(col) for col in df.columns}
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TimeRemainingColumn(),
+        console=console,
+    ) as progress:
+        task = progress.add_task(f"Reversing {filename}...", total=len(df))
+
+        for idx in range(len(df)):
+            for col, col_idx in col_indices.items():
+                val = str(df.iat[idx, col_idx])
+                if val in ("nan", "None", ""):
+                    continue
+                if val in reverse_mapping:
+                    df.iat[idx, col_idx] = reverse_mapping[val]
+                    total_restored += 1
+
+            progress.update(task, advance=1)
+
+    df.to_csv(output_file, index=False)
+    console.print(f"[bold green]✔[/bold green] Restored: [bold underline]{output_file}[/bold underline]")
+
+    return {
+        "file": filename,
+        "rows": len(df),
+        "columns": len(df.columns),
+        "replacements": total_restored,
+        "pii_types": {},
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description="diShine Data-Safe USB — Local PII Anonymizer")
+    parser.add_argument("--version", action="version", version=f"diShine Data-Safe USB v{VERSION}")
     parser.add_argument("--dry-run", action="store_true", help="Scan for PII without modifying files")
+    parser.add_argument("--reverse", action="store_true", help="Reverse anonymization using vault mapping")
     parser.add_argument("--input", default="input", help="Input directory (default: input)")
     parser.add_argument("--output", default="output", help="Output directory (default: output)")
+    parser.add_argument("--vault", default="vault", help="Vault directory (default: vault)")
     args = parser.parse_args()
 
     console.print(Panel(
         f"[bold cyan]diShine Data-Safe USB v{VERSION}[/bold cyan]\n[dim]Local PII Anonymizer[/dim]",
         expand=False,
     ))
+
+    if args.reverse:
+        vault = DataVault(vault_dir=args.vault)
+        mapping = vault.load_mapping()
+        if not mapping:
+            console.print("[bold red]✗[/bold red] No vault mapping found. Nothing to reverse.")
+            return
+
+        # Build reverse mapping: fake → original
+        reverse_mapping = {v: k for k, v in mapping.items()}
+        console.print(f"[bold green]✔[/bold green] Loaded {len(mapping)} mapping(s) from vault.")
+
+        source_dir = args.output
+        os.makedirs(source_dir, exist_ok=True)
+        csv_files = sorted(
+            [f for f in os.listdir(source_dir) if f.lower().endswith(".csv")],
+        )
+
+        if not csv_files:
+            console.print(f"[bold yellow]![/bold yellow] No CSV files found in [bold]{source_dir}/[/bold].")
+            return
+
+        summaries = []
+        for csv_file in csv_files:
+            filepath = os.path.join(source_dir, csv_file)
+            result = reverse_csv(filepath, args.input, reverse_mapping)
+            if result:
+                summaries.append(result)
+
+        if summaries:
+            label = "Reversal Report"
+            table = Table(title=label, show_lines=True)
+            table.add_column("File", style="cyan")
+            table.add_column("Rows", justify="right")
+            table.add_column("Values Restored", justify="right", style="green")
+            for s in summaries:
+                table.add_row(s["file"], str(s["rows"]), str(s["replacements"]))
+            console.print()
+            console.print(table)
+        return
 
     input_dir = args.input
     output_dir = args.output
@@ -131,7 +233,7 @@ def main():
 
     analyzer = PII_Analyzer()
     transformer = PII_Transformer()
-    vault = DataVault()
+    vault = DataVault(vault_dir=args.vault)
 
     summaries = []
     for csv_file in csv_files:
