@@ -15,8 +15,7 @@
   <img src="images/datasafe_01_dry_run_overview.webp" alt="Data Safe overview" width="90%">
 </p>
 
-***Strip names, emails, phone numbers, and other personally identifiable information from your data before uploading it to cloud AI services. Everything runs on your machine — nothing leaves your computer.
-Built by [diShine](https://dishine.it)***
+***Strip names, emails, phone numbers, and other personally identifiable information from your data before uploading it to cloud AI services. Everything runs on your machine, nothing leaves your computer.***
 
 Built by [diShine Digital Agency](https://dishine.it). Read more on the [diShine blog](https://dishine.it/blog/prismo-ai-consulting-toolkit-usb/).
 
