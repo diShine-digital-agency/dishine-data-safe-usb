@@ -1,11 +1,26 @@
-# diShine Data-Safe USB: Local PII anonymizer for CSV files
+# 💾 diShine Data-Safe USB: Local PII anonymizer for CSV files
+
+<div align="center">
+  
+[![diShine Logo](https://dishine.it/favicon.ico)](https://dishine.it/)
+
+***Transform. Automate. Shine!***
+
+[![Website](https://img.shields.io/badge/Website-dishine.it-blue)](https://dishine.it/blog/prismo-ai-consulting-toolkit-usb/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-diShine-blue)](https://linkedin.com/company/100682596)
+[![Location](https://img.shields.io/badge/Location-Milan%2C%20Italy-green)]()
+[![License: CC0](https://img.shields.io/badge/License-CC0%201.0-lightgrey)](LICENSE)
 
 <p align="center">
-  <img src="images/datasafe_01_dry_run_overview.webp" alt="Data Safe overview" width="65%">
+  <img src="images/datasafe_01_dry_run_overview.webp" alt="Data Safe overview" width="90%">
 </p>
 
-Strip names, emails, phone numbers, and other personally identifiable information from your data before uploading it to cloud AI services. Everything runs on your machine — nothing leaves your computer.
-Built by [diShine](https://dishine.it) 
+***Strip names, emails, phone numbers, and other personally identifiable information from your data before uploading it to cloud AI services. Everything runs on your machine — nothing leaves your computer.
+Built by [diShine](https://dishine.it)***
+
+Built by [diShine Digital Agency](https://dishine.it). Read more on the [diShine blog](https://dishine.it/blog/prismo-ai-consulting-toolkit-usb/).
+
+</div>
 
 <p align="center">
   <img src="images/datasafe_03_input_output_comparison.webp" alt="Data Safe comparaison" width="49%">
@@ -193,3 +208,14 @@ The test suite includes 25 tests covering the analyzer, transformer, vault, and 
 Copyright © 2026 [diShine](https://dishine.it). All rights reserved.
 
 Author: Kevin Escoda
+
+---
+
+## About diShine
+
+[diShine](https://dishine.it) is a creative tech agency based in Milan. We create digital strategies, design process and build tools for clients, help businesses with AI strategy and MarTech architecture, and open-source some things we wish existed.
+
+- Web: [dishine.it](https://dishine.it)
+- GitHub: [github.com/diShine-digital-agency](https://github.com/diShine-digital-agency)
+- Contact: kevin@dishine.it
+
