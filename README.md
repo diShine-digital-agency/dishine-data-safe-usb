@@ -32,7 +32,7 @@ Built by [diShine Digital Agency](https://dishine.it).
 
 ---
 
-## What It Does
+## What it does
 
 Cloud AI tools like ChatGPT and Claude are powerful for data analysis, but uploading raw customer lists, HR records, or sales data creates real privacy and compliance risks.
 
@@ -40,11 +40,11 @@ Data-Safe USB sits between your raw data and the cloud. It scans CSV files for P
 
 Key properties:
 
-- **Fully offline** — powered by [Microsoft Presidio](https://github.com/microsoft/presidio) and [spaCy](https://spacy.io/) running locally
-- **Deterministic replacements** — the same input always produces the same fake output, preserving relational consistency across rows and files
-- **Batch processing** — drop multiple CSVs into the input folder and process them all at once
-- **Reversible** — the vault mapping lets you map back to original values when needed
-- **Simple CLI** — progress bars, summary tables, dry-run mode
+- **Fully offline**: powered by [Microsoft Presidio](https://github.com/microsoft/presidio) and [spaCy](https://spacy.io/) running locally
+- **Deterministic replacements**: the same input always produces the same fake output, preserving relational consistency across rows and files
+- **Batch processing**: drop multiple CSVs into the input folder and process them all at once
+- **Reversible**: the vault mapping lets you map back to original values when needed
+- **Simple CLI**: progress bars, summary tables, dry-run mode
 
 ---
 
@@ -95,7 +95,7 @@ python Data_Safe.py --dry-run
 
 ---
 
-## CLI Options
+## CLI options
 
 ```
 python Data_Safe.py [OPTIONS]
@@ -111,7 +111,7 @@ Options:
 
 ---
 
-## How It Works
+## How it works
 
 ```
 CSV files (input/)
@@ -133,7 +133,7 @@ The deterministic replacement works by hashing each original value with a salt u
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 ├── Data_Safe.py          # Main entry point
@@ -166,7 +166,7 @@ echo 'DATASAFE_SALT=your-custom-salt' > .env
 
 ---
 
-## Security Notes
+## Security notes
 
 - The `vault/` directory contains the complete reversal key. **Never share it, never commit it.** It is excluded from git by default.
 - The `output/` directory is also excluded from git to prevent accidental data leaks.
@@ -175,7 +175,7 @@ echo 'DATASAFE_SALT=your-custom-salt' > .env
 
 ---
 
-## Running Tests
+## Running tests
 
 ```bash
 pip install pytest
